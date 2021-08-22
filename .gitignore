@@ -2,3 +2,9 @@
 .Rhistory
 .RData
 .Ruserdata
+archive
+.DS_Store
+methods.Rmd
+methods.pdf
+model
+abundance-occupancy.bib

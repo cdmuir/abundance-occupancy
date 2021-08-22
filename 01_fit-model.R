@@ -5,15 +5,15 @@ source("header.R")
 
 ## Read data and edit ----
 
-dat <- read_csv("revised_abun_occ_scatter_data.csv") %>%
+dat <- read.csv("data_for_regress.csv") %>%
   mutate(
     log_asv_abundance = log(asv_abundance),
     log_sample_count = log(sample_count),
     group = case_when(
-      soil_host_core_color == "black" & unique_core_color == "black" ~ 1,
-      soil_host_core_color == "darkgoldenrod1" & unique_core_color == "black" ~ 2,
-      soil_host_core_color == "black" & unique_core_color == "slateblue1" ~ 3,
-      soil_host_core_color == "darkgoldenrod1" & unique_core_color == "slateblue1" ~ 4,
+      soil_host_core_color == "black" & host_spec_color == "black" ~ 1,
+      soil_host_core_color == "darkgoldenrod1" & host_spec_color == "black" ~ 2,
+      soil_host_core_color == "black" & host_spec_color == "slateblue1" ~ 3,
+      soil_host_core_color == "darkgoldenrod1" & host_spec_color == "slateblue1" ~ 4,
     )
   )
 
@@ -23,8 +23,8 @@ write_rds(dat, "dat.rds")
 ## Convert data to list for Stan ----
 
 dat_list <- list(
-  x = model.matrix(lm(log_asv_abundance ~ soil_host_core_color +
-                        unique_core_color,  data = dat)),
+  x = model.matrix(lm(log_asv_abundance ~ soil_host_core_color *
+                        host_spec_color,  data = dat)),
   y = as.matrix(select(dat, log_asv_abundance, log_sample_count))
   )
 
@@ -48,6 +48,6 @@ fit <- mod$sample(
   refresh = 500
 )
 
- ## Save fitted model ----
+## Save fitted model ----
 fit$save_object(file = "fit.rds")
 write_rds(fit$metadata(), "fit-metadata.rds")
