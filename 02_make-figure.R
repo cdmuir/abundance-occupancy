@@ -2,8 +2,8 @@
 
 source("header.R")
 
-dat <- readRDS("dat_v2.rds")
-fit <- readRDS("fit_v2.rds")
+dat <- readRDS("dat.rds")
+fit <- readRDS("fit.rds")
 
 # Make data for plotting ----
 df <- fit$draws("beta") %>%
@@ -18,7 +18,12 @@ df <- fit$draws("beta") %>%
     log_asv_abundance_4 = `beta[1,1]` + `beta[1,2]` + `beta[1,3]` + `beta[1,4]`,
     log_sample_count_4 = `beta[2,1]` + `beta[2,2]` + `beta[2,3]` + `beta[2,4]`,
   ) %>%
-  select(starts_with("log")) %>%
+  select(starts_with("log"))
+
+# Hypothesis testing
+hypothesis(df, "log_asv_abundance_2 = log_asv_abundance_3")
+
+df_mut <- df %>%
   pivot_longer(everything(), values_to = "estimate") %>%
   group_by(name) %>%
   point_interval() %>%
@@ -26,10 +31,9 @@ df <- fit$draws("beta") %>%
     group = str_extract(name, "[1-4]{1}$"),
     name = str_remove(name, "_[1-4]{1}$")
   ) %>%
-  pivot_wider(values_from = c(estimate, .lower, .upper))
-
-# only including core and host-specific ASVs
-df_mut <- df[2:3,]
+  pivot_wider(values_from = c(estimate, .lower, .upper)) %>%
+  # only including core and host-specific ASVs
+  filter(group %in% c(2,3))
 
 # make a column in the data df with only 2 color options
 # aka removing instances of "black" 

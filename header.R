@@ -1,5 +1,6 @@
 rm(list = ls())
 
+library(brms)
 library(cmdstanr)
 library(conflicted)
 library(cowplot)
@@ -11,4 +12,5 @@ library(readr)
 library(stringr)
 library(tidyr)
 
+conflict_prefer("ar", "brms", "stats")
 conflict_prefer("filter", "dplyr", "stats")
